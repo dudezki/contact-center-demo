@@ -21,3 +21,9 @@ Legend: ✅ done & verified · 🟡 built, not verified end-to-end · ⛔ blocke
 - **Real:** token minting, LiveKit room/agent dispatch code, WebRTC client, transcription stream handling.
 - **Not yet exercised:** a live call. No LiveKit credentials existed in the workspace, so no real-time conversation has been verified.
 - **Placeholder:** hero photo (procedural SVG backdrop until a licensed photo is added), contact email.
+
+## Deployment — 2026-11-25
+- Vercel production: home 200, `/api/health` 200, `/api/token` 200 with room-scoped token, 6th rapid call → 429,
+  LiveKit secret not present in built JS. Env vars stored as sensitive in Vercel.
+- LiveKit Cloud agent (ap-south): status Running; test dispatch received ("received job request").
+- Not yet verified: a full spoken call against production (needs a real browser + microphone).

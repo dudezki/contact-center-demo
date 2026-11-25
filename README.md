@@ -47,6 +47,16 @@ cd web && npm run dev
 3. Check: mute, interrupt the agent mid-sentence, end call, kill the API mid-call (reconnect state).
 4. Agent logs show the job dispatched; if no agent joins, check the worker is registered under `AGENT_NAME`.
 
+## Deployment (live)
+- **Site + token API:** https://contact-center-demo-beta.vercel.app — Vercel serves `web/dist` and runs
+  `api/index.py` (FastAPI from `backend/app`, deps in root `requirements.txt`) as a Python function; `/api/*`
+  is rewritten to it (same origin). Config: `vercel.json`, `.vercelignore`. Env vars live in the Vercel dashboard.
+- **Agent:** LiveKit Cloud agent `CA_EFmxcqtWfwVu`, region `ap-south`, built from `backend/Dockerfile`
+  (`backend/livekit.toml`). Redeploy: `cd backend && lk agent deploy`. Logs: `lk agent logs`.
+- Redeploy web/API: `vercel deploy --prod`.
+- Known limit: the token rate limiter is in-memory per serverless instance, so limits are per instance,
+  not global. The 60-second call cap is enforced by the agent regardless. Move to Redis/Upstash for strict limits.
+
 ## Security
 - API secret/key only in `.env` (git-ignored); the browser receives a JWT only.
 - Token: unique room + identity per call, `roomJoin` for that room only, microphone-only publishing, no data
