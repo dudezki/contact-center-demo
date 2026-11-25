@@ -75,7 +75,10 @@ async def entrypoint(ctx: JobContext) -> None:
         ctx.shutdown(reason="max call duration")
 
     limit_task = asyncio.create_task(enforce_limit())
-    ctx.add_shutdown_callback(lambda: limit_task.cancel())
+    async def cancel_limit() -> None:  # shutdown callbacks must be async
+        limit_task.cancel()
+
+    ctx.add_shutdown_callback(cancel_limit)
 
     # Fixed welcome line: spoken immediately, no LLM round trip. It is also added to the chat context.
     session.say(persona.greeting, allow_interruptions=True)
