@@ -61,7 +61,7 @@ cd web && npm run dev
 The LiveKit workspace allows one deployed agent, so this agent also serves the HAVEN. Estates demo
 (`real-estate-demo` repo). Each site's token service sets `AGENT_PERSONA`, sent as dispatch metadata
 `{"persona": "..."}`; `backend/agent/personas.py` maps it to instructions, greeting and farewell.
-Missing or unknown personas fall back to CONNECT. Personas: `connect` (default), `haven`.
+Missing or unknown personas fall back to CONNECT. Personas: `connect` (default), `haven` (real-estate-demo), `miel` (pastry-demo).
 
 ## Security
 - API secret/key only in `.env` (git-ignored); the browser receives a JWT only.

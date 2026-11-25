@@ -62,6 +62,7 @@ def test_persona_in_dispatch():
 def test_persona_resolution_is_safe():
     from agent.personas import DEFAULT, resolve
     assert resolve('{"persona": "haven"}')[0] == "haven"
+    assert resolve('{"persona": "miel"}')[0] == "miel"
     assert resolve(None)[0] == DEFAULT
     assert resolve('{"persona": "unknown"}')[0] == DEFAULT
     assert resolve("not json")[0] == DEFAULT

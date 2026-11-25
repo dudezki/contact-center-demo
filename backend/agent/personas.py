@@ -7,7 +7,7 @@ back to the CONNECT. contact-center assistant.
 import json
 from dataclasses import dataclass
 
-from . import haven_prompt, prompt
+from . import haven_prompt, miel_prompt, prompt
 
 
 @dataclass(frozen=True)
@@ -20,6 +20,7 @@ class Persona:
 PERSONAS: dict[str, Persona] = {
     "connect": Persona(prompt.SYSTEM_PROMPT, prompt.GREETING, prompt.FAREWELL),
     "haven": Persona(haven_prompt.SYSTEM_PROMPT, haven_prompt.GREETING, haven_prompt.FAREWELL),
+    "miel": Persona(miel_prompt.SYSTEM_PROMPT, miel_prompt.GREETING, miel_prompt.FAREWELL),
 }
 DEFAULT = "connect"
 
