@@ -57,6 +57,12 @@ cd web && npm run dev
 - Known limit: the token rate limiter is in-memory per serverless instance, so limits are per instance,
   not global. The 60-second call cap is enforced by the agent regardless. Move to Redis/Upstash for strict limits.
 
+## Shared agent (personas)
+The LiveKit workspace allows one deployed agent, so this agent also serves the HAVEN. Estates demo
+(`real-estate-demo` repo). Each site's token service sets `AGENT_PERSONA`, sent as dispatch metadata
+`{"persona": "..."}`; `backend/agent/personas.py` maps it to instructions, greeting and farewell.
+Missing or unknown personas fall back to CONNECT. Personas: `connect` (default), `haven`.
+
 ## Security
 - API secret/key only in `.env` (git-ignored); the browser receives a JWT only.
 - Token: unique room + identity per call, `roomJoin` for that room only, microphone-only publishing, no data

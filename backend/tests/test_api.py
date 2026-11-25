@@ -48,3 +48,21 @@ def test_limiter_window_expires():
 def test_cors_blocks_unknown_origin(client):
     r = client.options("/api/token", headers={"Origin": "https://evil.example", "Access-Control-Request-Method": "POST"})
     assert "access-control-allow-origin" not in r.headers
+
+
+def test_persona_in_dispatch():
+    import json
+    s = SETTINGS.model_copy(update={"agent_persona": "haven"})
+    claims = jwt.decode(TestClient(create_app(s)).post("/api/token").json()["token"], s.livekit_api_secret, algorithms=["HS256"])
+    agents = claims["roomConfig"]["agents"]
+    assert agents[0]["agentName"] == s.agent_name
+    assert json.loads(agents[0]["metadata"]) == {"persona": "haven"}
+
+
+def test_persona_resolution_is_safe():
+    from agent.personas import DEFAULT, resolve
+    assert resolve('{"persona": "haven"}')[0] == "haven"
+    assert resolve(None)[0] == DEFAULT
+    assert resolve('{"persona": "unknown"}')[0] == DEFAULT
+    assert resolve("not json")[0] == DEFAULT
+    assert resolve("[1]")[0] == DEFAULT

@@ -16,7 +16,7 @@ from livekit.agents import Agent, AgentSession, JobContext, JobProcess, TurnHand
 from livekit.plugins import silero
 
 from app.config import ROOT
-from .prompt import FAREWELL, GREETING, SYSTEM_PROMPT
+from .personas import resolve
 
 load_dotenv(ROOT / ".env")
 log = logging.getLogger("connect.agent")
@@ -40,6 +40,8 @@ server.setup_fnc = prewarm
 
 @server.rtc_session(agent_name=AGENT_NAME)
 async def entrypoint(ctx: JobContext) -> None:
+    persona_key, persona = resolve(ctx.job.metadata)
+    log.info("starting session persona=%s", persona_key)
     session = AgentSession(
         stt=STT_MODEL,
         llm=LLM_MODEL,
@@ -54,7 +56,7 @@ async def entrypoint(ctx: JobContext) -> None:
 
     await session.start(
         room=ctx.room,
-        agent=Agent(instructions=SYSTEM_PROMPT),
+        agent=Agent(instructions=persona.instructions),
         room_options=room_io.RoomOptions(
             audio_input=room_io.AudioInputOptions(),
             text_output=room_io.TextOutputOptions(),  # streams lk.transcription to the UI
@@ -65,7 +67,7 @@ async def entrypoint(ctx: JobContext) -> None:
         # The whole call, goodbye included, ends at MAX_CALL_SECONDS.
         await asyncio.sleep(max(1, MAX_CALL_SECONDS - FAREWELL_SECONDS))
         await session.interrupt()
-        handle = session.say(FAREWELL, allow_interruptions=False)
+        handle = session.say(persona.farewell, allow_interruptions=False)
         try:
             await asyncio.wait_for(handle.wait_for_playout(), timeout=FAREWELL_SECONDS)
         except asyncio.TimeoutError:
@@ -76,7 +78,7 @@ async def entrypoint(ctx: JobContext) -> None:
     ctx.add_shutdown_callback(lambda: limit_task.cancel())
 
     # Fixed welcome line: spoken immediately, no LLM round trip. It is also added to the chat context.
-    session.say(GREETING, allow_interruptions=True)
+    session.say(persona.greeting, allow_interruptions=True)
 
 
 if __name__ == "__main__":
